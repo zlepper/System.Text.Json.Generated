@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>9</LangVersion>
+        <IsPackable>true</IsPackable>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AnalyzerReference Include="../System.Text.Json.Generated.Generator/System.Text.Json.Generated.Generator.csproj" />
+    </ItemGroup>
+
+</Project>

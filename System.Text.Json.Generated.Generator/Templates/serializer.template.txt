@@ -1,0 +1,7 @@
+﻿namespace {{type.namespace}}
+{
+    public partial {{type.declaration_type}} {{type.name}} : 
+    {
+    
+    }
+}
