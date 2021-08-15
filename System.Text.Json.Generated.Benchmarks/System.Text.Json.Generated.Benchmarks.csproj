@@ -16,6 +16,11 @@
         <!--        <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />-->
         <!--        <PackageReference Include="coverlet.collector" Version="3.0.3" />-->
     </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\System.Text.Json.Generated.Generator\System.Text.Json.Generated.Generator.csproj" OutputItemType="Analyzer" PrivateAssets="all" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\System.Text.Json.Generated\System.Text.Json.Generated.csproj" />
+    </ItemGroup>
 
     <PropertyGroup>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>

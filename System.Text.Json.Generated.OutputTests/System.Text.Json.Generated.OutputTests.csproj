@@ -23,7 +23,7 @@
         <Content Include="Generated/*/**/*.*" />
     </ItemGroup>
     <ItemGroup>
-<!--      <ProjectReference Include="..\System.Text.Json.Generated.Generator\System.Text.Json.Generated.Generator.csproj" OutputItemType="Analyzer" PrivateAssets="all" ReferenceOutputAssembly="false" />-->
+      <ProjectReference Include="..\System.Text.Json.Generated.Generator\System.Text.Json.Generated.Generator.csproj" OutputItemType="Analyzer" PrivateAssets="all" ReferenceOutputAssembly="false" />
       <ProjectReference Include="..\System.Text.Json.Generated\System.Text.Json.Generated.csproj" />
     </ItemGroup>
 </Project>

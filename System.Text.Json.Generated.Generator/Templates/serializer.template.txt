@@ -1,7 +1,47 @@
-﻿namespace {{type.namespace}}
+﻿using System.Text.Json.Generated;
+using System.Text.Json;
+
+namespace {{type.namespace}}
 {
-    public partial {{type.declaration_type}} {{type.name}} : 
+    public partial {{type.declaration_type | string.downcase}} {{type.name}} : IJsonSerializable
     {
+        public void SerializeToJson(Utf8JsonWriter writer) 
+        {
+            writer.WriteStartObject();
+            
+            WriteProperties(writer);
+            
+            writer.WriteEndObject();
+        }
+        
+        protected void WriteProperties(Utf8JsonWriter writer)
+        {
+            
+            {{~for property in type.properties~}}
+              {{~if property.json_type == "Object"~}}
+                // TODO: Implement special handling here
+              {{~else~}}
+            writer.{{~
+            case property.json_type
+            when "Boolean"
+                "WriteBoolean"
+            when "Number"
+                "WriteNumber"
+            when "String"
+                "WriteString"
+            end
+                -}}
+            ({{type.name}}SerializerConstants.{{property.name}}PropertyName, {{property.name}});
+              {{~end~}}
+            {{~end~}}
+            
+        }
+    }
     
+    internal class {{type.name}}SerializerConstants 
+    {
+        {{~for property in type.properties~}}   
+        internal static readonly JsonEncodedText {{property.name}}PropertyName = JsonEncodedText.Encode("{{property.name}}");
+        {{~end~}}
     }
 }
