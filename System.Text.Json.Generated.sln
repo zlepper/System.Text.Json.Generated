@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Text.Json.Generated.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Text.Json.Generated", "System.Text.Json.Generated\System.Text.Json.Generated.csproj", "{BCEAF48B-C2CC-442F-8988-8A9CDF572625}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Text.Json.Generated.UnitTests", "System.Text.Json.Generated.UnitTests\System.Text.Json.Generated.UnitTests.csproj", "{3A4CACAF-A3EF-41F2-AEAC-08F7719275DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{BCEAF48B-C2CC-442F-8988-8A9CDF572625}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCEAF48B-C2CC-442F-8988-8A9CDF572625}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCEAF48B-C2CC-442F-8988-8A9CDF572625}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A4CACAF-A3EF-41F2-AEAC-08F7719275DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A4CACAF-A3EF-41F2-AEAC-08F7719275DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A4CACAF-A3EF-41F2-AEAC-08F7719275DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A4CACAF-A3EF-41F2-AEAC-08F7719275DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

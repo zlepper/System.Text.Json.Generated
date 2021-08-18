@@ -23,7 +23,7 @@ namespace System.Text.Json.Generated.Generator
             GenerateSerializers(sr.Types, context);
             
             DumpDiagnostics(context);
-            DumpLogs(context);
+            // DumpLogs(context);
 
         }
 
