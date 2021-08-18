@@ -30,31 +30,30 @@ namespace System.Text.Json.Generated.Generator
 
                 foreach (var attribute in typeSymbol.GetAttributes())
                 {
-                    if (!IsGenerateJsonSerializerAttribute(attribute))
-                    {
-                        return;
-                    }
+                    if (!IsGenerateJsonSerializerAttribute(attribute)) return;
 
-                    Logger.Log($"Found class {typeSymbol.Name} ({context.Node.GetLocation().GetMappedLineSpan()}) with GenerateJsonSerializerAttribute");
+                    Logger.Log(
+                        $"Found class {typeSymbol.Name} ({context.Node.GetLocation().GetMappedLineSpan()}) with GenerateJsonSerializerAttribute");
 
                     var properties = new List<SerializerTypeProperty>();
-                    
+
                     foreach (var member in typeSymbol.GetMembers())
                     {
                         if (member is not IPropertySymbol property)
                             continue;
-                        
+
                         Logger.Log($"Found property {property.Name} on type");
 
                         var propertyType = GetPropertyJsonType(property);
-                        
+
                         properties.Add(new SerializerTypeProperty(property.Name, propertyType));
                     }
 
                     var declarationType = GetTypeDeclarationType(context.Node);
-                    
-                    Types.Add(new SerializationType(typeSymbol.Name, typeSymbol.ContainingNamespace.GetFullName(), declarationType, properties));
-                    
+
+                    Types.Add(new SerializationType(typeSymbol.Name, typeSymbol.ContainingNamespace.GetFullName(),
+                        declarationType, properties));
+
                     return;
                 }
             }

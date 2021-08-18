@@ -6,7 +6,7 @@ namespace System.Text.Json.Generated.Generator
     {
         public static readonly DiagnosticDescriptor UnknownAnalyzerError = new("ZL0666", "Unknown analyzer error",
             "Analyzer error occurred: {0}", "ERROR", DiagnosticSeverity.Warning, true);
-        
+
         public static readonly DiagnosticDescriptor PropertyIsNotSerializable = new(
             "ZL0001",
             "Property is not serializable",

@@ -8,8 +8,8 @@ namespace System.Text.Json.Generated.Generator.Helpers
 {
     public class TemplateExecutor
     {
-        private readonly Template _template;
         private readonly TemplateContext _context;
+        private readonly Template _template;
 
         public TemplateExecutor(string templateName)
         {
@@ -19,10 +19,7 @@ namespace System.Text.Json.Generated.Generator.Helpers
 
             var filename = $"{callerName}.Templates.{templateName}.template.txt";
             using var stream = caller.GetManifestResourceStream(filename);
-            if (stream == null)
-            {
-                throw new Exception($"Could not find file '{filename}' in caller assembly");
-            }
+            if (stream == null) throw new Exception($"Could not find file '{filename}' in caller assembly");
             using var reader = new StreamReader(stream);
             var txt = reader.ReadToEnd();
 
@@ -41,7 +38,7 @@ namespace System.Text.Json.Generated.Generator.Helpers
                 StrictVariables = true,
                 EnableRelaxedIndexerAccess = false,
                 EnableRelaxedTargetAccess = false,
-                EnableRelaxedMemberAccess = false,
+                EnableRelaxedMemberAccess = false
             };
         }
 

@@ -15,16 +15,12 @@ namespace System.Text.Json.Generated.Generator
 
         public void Execute(GeneratorExecutionContext context)
         {
-            if (context.SyntaxContextReceiver is not SyntaxReceiver sr)
-            {
-                return;
-            }
-            
+            if (context.SyntaxContextReceiver is not SyntaxReceiver sr) return;
+
             GenerateSerializers(sr.Types, context);
-            
+
             DumpDiagnostics(context);
             // DumpLogs(context);
-
         }
 
         private void GenerateSerializers(List<SerializationType> types, GeneratorExecutionContext context)
@@ -37,17 +33,14 @@ namespace System.Text.Json.Generated.Generator
                 {
                     Type = type
                 });
-                
+
                 context.AddSource($"{type.Namespace}.{type.Name}", source);
             }
         }
 
         private static void DumpDiagnostics(GeneratorExecutionContext context)
         {
-            foreach (var diagnostic in Logger.Diagnostics)
-            {
-                context.ReportDiagnostic(diagnostic);
-            }
+            foreach (var diagnostic in Logger.Diagnostics) context.ReportDiagnostic(diagnostic);
         }
 
         private static void DumpLogs(GeneratorExecutionContext context)

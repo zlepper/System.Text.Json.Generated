@@ -1,9 +1,11 @@
 ﻿using System.Collections.Immutable;
+using System.Text.Json.Generated.Generator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
+using Microsoft.CodeAnalysis.Text;
 
 namespace System.Text.Json.Generated.UnitTests
 {
@@ -20,6 +22,8 @@ namespace System.Text.Json.Generated.UnitTests
                         ImmutableArray.Create(new PackageIdentity("System.Text.Json", "5.0.2")));
             }
 
+            public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.Default;
+
             protected override CompilationOptions CreateCompilationOptions()
             {
                 var compilationOptions = base.CreateCompilationOptions();
@@ -27,12 +31,11 @@ namespace System.Text.Json.Generated.UnitTests
                     compilationOptions.SpecificDiagnosticOptions.SetItems(GetNullableWarningsFromCompiler()));
             }
 
-            public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.Default;
-
             private static ImmutableDictionary<string, ReportDiagnostic> GetNullableWarningsFromCompiler()
             {
                 string[] args = { "/warnaserror:nullable" };
-                var commandLineArguments = CSharpCommandLineParser.Default.Parse(args, baseDirectory: Environment.CurrentDirectory, sdkDirectory: Environment.CurrentDirectory);
+                var commandLineArguments = CSharpCommandLineParser.Default.Parse(args, Environment.CurrentDirectory,
+                    Environment.CurrentDirectory);
                 var nullableWarnings = commandLineArguments.CompilationOptions.SpecificDiagnosticOptions;
 
                 return nullableWarnings;
@@ -43,5 +46,30 @@ namespace System.Text.Json.Generated.UnitTests
                 return ((CSharpParseOptions)base.CreateParseOptions()).WithLanguageVersion(LanguageVersion);
             }
         }
+    }
+
+    public class VerifyMainGenerator 
+    {
+        public static CSharpSourceGeneratorVerifier<MainGenerator>.Test SimpleTest(string code, string expected, string filename)
+        {
+            return new CSharpSourceGeneratorVerifier<MainGenerator>.Test
+            {
+                TestState =
+                {
+                    Sources = { code },
+                    GeneratedSources =
+                    {
+                        (typeof(MainGenerator), $"{filename}.cs", SourceText.From(expected, Encoding.UTF8))
+                    }
+                }
+            };
+        }
+
+        public static void RunSimpleTest(string code, string expected, string filename)
+        {
+            var test = SimpleTest(code, expected, filename);
+            test.RunAsync().GetAwaiter().GetResult();
+        }
+
     }
 }

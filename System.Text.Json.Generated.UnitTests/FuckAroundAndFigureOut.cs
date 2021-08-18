@@ -1,10 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text.Json.Generated.Generator;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.Testing;
-using Microsoft.CodeAnalysis.Text;
-using NUnit.Framework;
-using VerifyCS = System.Text.Json.Generated.UnitTests.CSharpSourceGeneratorVerifier<System.Text.Json.Generated.Generator.MainGenerator>;
+﻿using NUnit.Framework;
 
 namespace System.Text.Json.Generated.UnitTests
 {
@@ -12,7 +6,7 @@ namespace System.Text.Json.Generated.UnitTests
     public class FuckAroundAndFigureOut
     {
         [Test]
-        public async Task Something()
+        public void Something()
         {
             var code = @"
 using System.Text.Json.Generated;
@@ -58,17 +52,7 @@ namespace MyCode
 }
 ";
 
-            await new VerifyCS.Test
-            {
-                TestState =
-                {
-                    Sources = { code },
-                    GeneratedSources =
-                    {
-                        (typeof(MainGenerator), "MyCode.MyClass.cs", SourceText.From(expected, Encoding.UTF8))
-                    },
-                },
-            }.RunAsync();
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
         }
     }
 }

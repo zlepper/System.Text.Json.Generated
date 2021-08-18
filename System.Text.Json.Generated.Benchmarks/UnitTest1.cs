@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Text.Json.Serialization;
 using BenchmarkDotNet.Attributes;
@@ -105,6 +104,7 @@ namespace System.Text.Json.Generated.Benchmarks
         public string String1 { get; set; } = "hello";
         public string String2 { get; set; } = "World";
         public string String3 { get; set; } = "HEj";
+
         public string String4 { get; set; } = "Verden";
         // public object InnerObj2 { get; set; } = new MyInnerClass();
     }
@@ -157,6 +157,5 @@ namespace System.Text.Json.Generated.Benchmarks
 
 
         // public object InnerObj2 { get; set; } = new MyInnerClass();
-
     }
 }
