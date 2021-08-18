@@ -5,12 +5,6 @@ namespace System.Text.Json.Generated.UnitTests
     [TestFixture]
     public class SimplePropertySerialization : BaseTests
     {
-        private string SimpleWriteCall(string propertyName, string method)
-        {
-            return GetExpected(propertyName,
-                $"writer.{method}(MyClassSerializerConstants.{propertyName}PropertyName, {propertyName});");
-        }
-        
         [Test]
         public void TestStringProperty()
         {

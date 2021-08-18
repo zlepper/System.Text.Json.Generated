@@ -27,7 +27,8 @@ namespace {{type.namespace}}
             }
             writer.WriteEndObject();
               {{~else if property.json_type == "Object"~}}
-                // TODO: Implement special handling here
+            writer.WritePropertyName({{property_name_constant}});
+            {{property.name}}.SerializeToJson(writer);
               {{~else~}}
             writer.{{~ get_write_method_name(property.json_type)-}}({{property_name_constant}}, {{property.name}});
               {{~end~}}

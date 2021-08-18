@@ -21,6 +21,14 @@ namespace System.Text.Json.Generated.OutputTests
             
             VerifyOutputMatchesStandard(c);
         }
+
+        [Test]
+        public void SerializesNestedObjects()
+        {
+            var c = new ContainerClass();
+            
+            VerifyOutputMatchesStandard(c);
+        }
     }
 
     [GenerateJsonSerializer]
@@ -38,5 +46,19 @@ namespace System.Text.Json.Generated.OutputTests
         public Dictionary<string, string> MyDict2 { get; set; } = new() {{"hello", "13"}, {"world", "42"}};
         public Dictionary<string, bool> MyDict3 { get; set; } = new() {{"hello", true}, {"world", false}};
         public Dictionary<int, string> MyDict4 { get; set; } = new() {{13, "hello"}, {42, "world"}};
+    }
+
+    [GenerateJsonSerializer]
+    public partial class ContainerClass
+    {
+        public NestedClass Nested { get; set; } = new();
+    }
+
+    [GenerateJsonSerializer]
+    public partial class NestedClass
+    {
+        public int Int1 { get; set; } = 42;
+        public bool Bool1 { get; set; }
+        public string String1 { get; set; } = "Hello";
     }
 }

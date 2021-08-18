@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
 using System.Text.Json.Generated.Generator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -50,22 +51,27 @@ namespace System.Text.Json.Generated.UnitTests
 
     public class VerifyMainGenerator 
     {
-        public static CSharpSourceGeneratorVerifier<MainGenerator>.Test SimpleTest(string code, string expected, string filename)
+        private static CSharpSourceGeneratorVerifier<MainGenerator>.Test SimpleTest(string[] code, string[] expectedCode, string[] filenames)
         {
-            return new CSharpSourceGeneratorVerifier<MainGenerator>.Test
+            var test = new CSharpSourceGeneratorVerifier<MainGenerator>.Test();
+            foreach (var s in code)
             {
-                TestState =
-                {
-                    Sources = { code },
-                    GeneratedSources =
-                    {
-                        (typeof(MainGenerator), $"{filename}.cs", SourceText.From(expected, Encoding.UTF8))
-                    }
-                }
-            };
+                test.TestState.Sources.Add(s);
+            }
+            foreach (var (expected, filename) in expectedCode.Zip(filenames))
+            {
+                test.TestState.GeneratedSources.Add((typeof(MainGenerator), $"{filename}.cs", SourceText.From(expected, Encoding.UTF8)));
+            }
+
+            return test;
         }
 
         public static void RunSimpleTest(string code, string expected, string filename)
+        {
+            RunSimpleTest(new []{code}, new []{expected}, new []{filename});
+        }
+
+        public static void RunSimpleTest(string[] code, string[] expected, string[] filename)
         {
             var test = SimpleTest(code, expected, filename);
             test.RunAsync().GetAwaiter().GetResult();
