@@ -29,12 +29,19 @@ namespace System.Text.Json.Generated.Generator
 
             foreach (var type in types)
             {
-                var source = template.Render(new
+                try
                 {
-                    Type = type
-                });
+                    var source = template.Render(new
+                    {
+                        Type = type
+                    });
 
-                context.AddSource($"{type.Namespace}.{type.Name}", source);
+                    context.AddSource($"{type.Namespace}.{type.Name}", source);
+                }
+                catch (Exception e)
+                {
+                    Logger.ReportDiagnostic(Diagnostic.Create(Diags.UnknownAnalyzerError, null, e));
+                }
             }
         }
 
@@ -46,6 +53,11 @@ namespace System.Text.Json.Generated.Generator
         private static void DumpLogs(GeneratorExecutionContext context)
         {
             context.AddSource("Logs", Logger.GetAsCommentedSource());
+        }
+
+        public static void ValidateTemplates()
+        {
+            var _ = new TemplateExecutor("serializer");
         }
     }
 }

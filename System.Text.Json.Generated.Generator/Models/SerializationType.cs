@@ -19,6 +19,7 @@ namespace System.Text.Json.Generated.Generator.Models
         Boolean,
         Number,
         String,
-        Object
+        Object,
+        Dictionary
     }
 }

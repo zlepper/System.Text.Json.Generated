@@ -16,25 +16,21 @@ namespace {{type.namespace}}
         
         protected void WriteProperties(Utf8JsonWriter writer)
         {
-            
             {{~for property in type.properties~}}
-              {{~if property.json_type == "Object"~}}
+              {{~property_name_constant = type.name + "SerializerConstants." + property.name + "PropertyName"~}}
+              {{~if property.json_type == "Dictionary"~}}
+            writer.WriteStartObject({{property_name_constant}});
+            foreach(var keyValuePair in {{property.name}})
+            {
+                writer.WriteNumber(keyValuePair.Key, keyValuePair.Value);
+            }
+            writer.WriteEndObject();
+              {{~else if property.json_type == "Object"~}}
                 // TODO: Implement special handling here
               {{~else~}}
-            writer.{{~
-            case property.json_type
-            when "Boolean"
-                "WriteBoolean"
-            when "Number"
-                "WriteNumber"
-            when "String"
-                "WriteString"
-            end
-                -}}
-            ({{type.name}}SerializerConstants.{{property.name}}PropertyName, {{property.name}});
+            writer.{{~ get_write_method_name(property.json_type)-}}({{property_name_constant}}, {{property.name}});
               {{~end~}}
             {{~end~}}
-            
         }
     }
     

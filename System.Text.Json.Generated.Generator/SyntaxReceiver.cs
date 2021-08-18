@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Generated.Generator.Helpers;
 using System.Text.Json.Generated.Generator.Models;
 using System.Threading;
@@ -82,10 +83,28 @@ namespace System.Text.Json.Generated.Generator
                 SpecialType.System_Int16 or SpecialType.System_Int32 or SpecialType.System_Int64 => PropertyJsonType
                     .Number,
                 SpecialType.System_String => PropertyJsonType.String,
+                _ when IsDictionary(property.Type) => PropertyJsonType.Dictionary,
                 _ => PropertyJsonType.Object
             };
         }
 
+        private static bool IsDictionary(ITypeSymbol type)
+        {
+            return type.AllInterfaces.Any(i => i is
+            {
+                Name: "IDictionary",
+                ContainingNamespace:
+                {
+                    Name: "Generic",
+                    ContainingNamespace:
+                    {
+                        Name: "Collections",
+                        ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } }
+                    }
+                }
+            });
+        }
+        
         private static bool IsGenerateJsonSerializerAttribute(AttributeData attribute)
         {
             return attribute.AttributeClass?.Name is "GenerateJsonSerializerAttribute" or "GenerateJsonSerializer";

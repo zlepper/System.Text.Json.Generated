@@ -3,12 +3,13 @@
 namespace System.Text.Json.Generated.UnitTests
 {
     [TestFixture]
-    public class SimplePropertySerialization
+    public class DictionarySerialization
     {
         [Test]
-        public void TestStringProperty()
+        public void HandleStringInt()
         {
             var code = @"
+using System.Collections.Generic;
 using System.Text.Json.Generated;
 
 namespace MyCode
@@ -16,11 +17,11 @@ namespace MyCode
     [GenerateJsonSerializer]
     public partial class MyClass
     {
-        public string String1 { get; set; } = ""Hello"";
+        public Dictionary<string, int> MyDict { get; set; } = new();
     }
 }
 ";
-
+            
             var expected = @"using System.Text.Json.Generated;
 using System.Text.Json;
 
@@ -39,24 +40,29 @@ namespace MyCode
         
         protected void WriteProperties(Utf8JsonWriter writer)
         {
-            writer.WriteString(MyClassSerializerConstants.String1PropertyName, String1);
+            writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
+            foreach(var keyValuePair in MyDict)
+            {
+                writer.WriteNumber(keyValuePair.Key, keyValuePair.Value);
+            }
+            writer.WriteEndObject();
         }
     }
     
     internal class MyClassSerializerConstants 
     {
-        internal static readonly JsonEncodedText String1PropertyName = JsonEncodedText.Encode(""String1"");
+        internal static readonly JsonEncodedText MyDictPropertyName = JsonEncodedText.Encode(""MyDict"");
     }
 }
 ";
 
             VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
         }
-        
         [Test]
-        public void TestIntProperty()
+        public void HandleStringString()
         {
             var code = @"
+using System.Collections.Generic;
 using System.Text.Json.Generated;
 
 namespace MyCode
@@ -64,11 +70,11 @@ namespace MyCode
     [GenerateJsonSerializer]
     public partial class MyClass
     {
-        public int Int1 { get; set; } = 42;
+        public Dictionary<string, string> MyDict { get; set; } = new();
     }
 }
 ";
-
+            
             var expected = @"using System.Text.Json.Generated;
 using System.Text.Json;
 
@@ -87,24 +93,29 @@ namespace MyCode
         
         protected void WriteProperties(Utf8JsonWriter writer)
         {
-            writer.WriteNumber(MyClassSerializerConstants.Int1PropertyName, Int1);
+            writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
+            foreach(var keyValuePair in MyDict)
+            {
+                writer.WriteString(keyValuePair.Key, keyValuePair.Value);
+            }
+            writer.WriteEndObject();
         }
     }
     
     internal class MyClassSerializerConstants 
     {
-        internal static readonly JsonEncodedText Int1PropertyName = JsonEncodedText.Encode(""Int1"");
+        internal static readonly JsonEncodedText MyDictPropertyName = JsonEncodedText.Encode(""MyDict"");
     }
 }
 ";
 
             VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
         }
-        
         [Test]
-        public void TestBoolProperty()
+        public void HandleStringBool()
         {
             var code = @"
+using System.Collections.Generic;
 using System.Text.Json.Generated;
 
 namespace MyCode
@@ -112,11 +123,11 @@ namespace MyCode
     [GenerateJsonSerializer]
     public partial class MyClass
     {
-        public bool Bool1 { get; set; } = true;
+        public Dictionary<string, bool> MyDict { get; set; } = new();
     }
 }
 ";
-
+            
             var expected = @"using System.Text.Json.Generated;
 using System.Text.Json;
 
@@ -135,13 +146,18 @@ namespace MyCode
         
         protected void WriteProperties(Utf8JsonWriter writer)
         {
-            writer.WriteBoolean(MyClassSerializerConstants.Bool1PropertyName, Bool1);
+            writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
+            foreach(var keyValuePair in MyDict)
+            {
+                writer.WriteBoolean(keyValuePair.Key, keyValuePair.Value);
+            }
+            writer.WriteEndObject();
         }
     }
     
     internal class MyClassSerializerConstants 
     {
-        internal static readonly JsonEncodedText Bool1PropertyName = JsonEncodedText.Encode(""Bool1"");
+        internal static readonly JsonEncodedText MyDictPropertyName = JsonEncodedText.Encode(""MyDict"");
     }
 }
 ";

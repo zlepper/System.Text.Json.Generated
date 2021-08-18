@@ -45,6 +45,7 @@ namespace System.Text.Json.Generated.Generator.Helpers
         public string Render(object data)
         {
             var so = new ScriptObject();
+            so.Import(typeof(TemplateFunctions));
             so.Import(data);
 
             _context.PushGlobal(so);

@@ -10,7 +10,7 @@ namespace System.Text.Json.Generated.Generator
         public static readonly DiagnosticDescriptor PropertyIsNotSerializable = new(
             "ZL0001",
             "Property is not serializable",
-            "The property {0} is not serializable. Please add the [GenerateSerializer] attribute to the {1} class.",
+            "The property {0} is not serializable. Please add the [GenerateJsonSerializer] attribute to the {1} class.",
             "ERROR",
             DiagnosticSeverity.Error,
             true);

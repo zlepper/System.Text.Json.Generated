@@ -1,46 +1,39 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace System.Text.Json.Generated.OutputTests
 {
     [TestFixture]
-    public class SanityTests
+    public class SanityTests : BaseTest
     {
         [Test]
         public void HasSerializeMethod()
         {
-            var c = new MyClass();
+            var c = new MySimpleClass();
 
-            var correct = SerializeUsingStdLib(c);
-            var generated = SerializeUsingGenerated(c);
-
-            Assert.That(generated, Is.EqualTo(correct));
+            VerifyOutputMatchesStandard(c);
         }
 
-        private string SerializeUsingGenerated<T>(T serializable)
-            where T : IJsonSerializable
+        [Test]
+        public void SerializesDictionaryProperty()
         {
-            using var ms = new MemoryStream(1 << 16);
-            var writer = new Utf8JsonWriter(ms);
-            serializable.SerializeToJson(writer);
-            writer.Flush();
-
-            var bytes = ms.ToArray();
-            return Encoding.UTF8.GetString(bytes);
-        }
-
-        private string SerializeUsingStdLib<T>(T serializable)
-            where T : IJsonSerializable
-        {
-            return JsonSerializer.Serialize(serializable);
+            var c = new MySimpleDictionaryContainer();
+            
+            VerifyOutputMatchesStandard(c);
         }
     }
 
     [GenerateJsonSerializer]
-    public partial class MyClass
+    public partial class MySimpleClass
     {
         public int Int1 { get; set; } = 42;
         public bool Bool1 { get; set; }
         public string String1 { get; set; } = "Hello";
+    }
+
+    [GenerateJsonSerializer]
+    public partial class MySimpleDictionaryContainer
+    {
+        public Dictionary<string, int> MyDict { get; set; } = new() {{"hello", 13}, {"world", 42}};
     }
 }
