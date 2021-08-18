@@ -3,9 +3,13 @@
 namespace System.Text.Json.Generated.Generator.Models
 {
     public record SerializationType(string Name, string Namespace, DeclarationType DeclarationType,
-        List<SerializerTypeProperty> Properties);
+        List<SerializerProperty> Properties);
 
-    public record SerializerTypeProperty(string Name, PropertyJsonType JsonType);
+
+    public record SerializerProperty(string Name, PropertyJsonType JsonType);
+    public record SerializerDictionaryProperty(string Name, DictionaryPropertyType DictionaryPropertyType) : SerializerProperty(Name, PropertyJsonType.Dictionary);
+
+    public record DictionaryPropertyType(JsonKeyType KeyType, PropertyJsonType ValueType);
 
     public enum DeclarationType
     {
@@ -20,6 +24,12 @@ namespace System.Text.Json.Generated.Generator.Models
         Number,
         String,
         Object,
-        Dictionary
+        Dictionary,
+    }
+
+    public enum JsonKeyType
+    {
+        String,
+        Number,
     }
 }

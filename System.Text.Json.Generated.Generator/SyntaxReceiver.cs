@@ -36,7 +36,7 @@ namespace System.Text.Json.Generated.Generator
                     Logger.Log(
                         $"Found class {typeSymbol.Name} ({context.Node.GetLocation().GetMappedLineSpan()}) with GenerateJsonSerializerAttribute");
 
-                    var properties = new List<SerializerTypeProperty>();
+                    var properties = new List<SerializerProperty>();
 
                     foreach (var member in typeSymbol.GetMembers())
                     {
@@ -45,9 +45,7 @@ namespace System.Text.Json.Generated.Generator
 
                         Logger.Log($"Found property {property.Name} on type");
 
-                        var propertyType = GetPropertyJsonType(property);
-
-                        properties.Add(new SerializerTypeProperty(property.Name, propertyType));
+                        properties.Add(GetSerializationProperty(property));
                     }
 
                     var declarationType = GetTypeDeclarationType(context.Node);
@@ -57,6 +55,10 @@ namespace System.Text.Json.Generated.Generator
 
                     return;
                 }
+            }
+            catch (CannotGenerateResonableSerializerException)
+            {
+                Logger.ReportDiagnostic(Diagnostic.Create(Diags.CannotGenerateReasonableSerializerMethod, context.Node.GetLocation()));
             }
             catch (Exception e)
             {
@@ -75,22 +77,26 @@ namespace System.Text.Json.Generated.Generator
             };
         }
 
-        private static PropertyJsonType GetPropertyJsonType(IPropertySymbol property)
+        private static PropertyJsonType GetPropertyJsonType(ITypeSymbol type)
         {
-            return property.Type.SpecialType switch
+            return type.SpecialType switch
             {
                 SpecialType.System_Boolean => PropertyJsonType.Boolean,
                 SpecialType.System_Int16 or SpecialType.System_Int32 or SpecialType.System_Int64 => PropertyJsonType
                     .Number,
                 SpecialType.System_String => PropertyJsonType.String,
-                _ when IsDictionary(property.Type) => PropertyJsonType.Dictionary,
                 _ => PropertyJsonType.Object
             };
         }
 
         private static bool IsDictionary(ITypeSymbol type)
         {
-            return type.AllInterfaces.Any(i => i is
+            return type.AllInterfaces.Any(IsDictionaryInterface);
+        }
+
+        private static bool IsDictionaryInterface(INamedTypeSymbol i)
+        {
+            return i is
             {
                 Name: "IDictionary",
                 ContainingNamespace:
@@ -102,9 +108,63 @@ namespace System.Text.Json.Generated.Generator
                         ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } }
                     }
                 }
-            });
+            };
         }
-        
+
+        private static SerializerProperty GetSerializationProperty(IPropertySymbol property)
+        {
+            if (IsDictionary(property.Type))
+            {
+                return GetDictionaryProperty(property);
+            }
+            else
+            {
+                return new SerializerProperty(property.Name, GetPropertyJsonType(property.Type));
+            }
+        }
+
+
+        private static SerializerDictionaryProperty GetDictionaryProperty(IPropertySymbol property)
+        {
+            var dictionaryType = GetDictionaryPropertyType(property);
+            
+            return new SerializerDictionaryProperty(property.Name, dictionaryType);
+        }
+
+        private static DictionaryPropertyType GetDictionaryPropertyType(IPropertySymbol property)
+        {
+            JsonKeyType keyType;
+
+            var type = property.Type;
+            var dictInterface = type.AllInterfaces.Single(IsDictionaryInterface);
+            var typeArguments = dictInterface.TypeArguments;
+
+            var keyTypeType = typeArguments[0];
+            switch (keyTypeType.SpecialType)
+            {
+                case SpecialType.System_String:
+                    keyType = JsonKeyType.String;
+                    break;
+                case SpecialType.System_Int16:
+                case SpecialType.System_Int32:
+                case SpecialType.System_Int64:
+                    keyType = JsonKeyType.Number;
+                    break;
+                default:
+                    Logger.Log(
+                        $"Dictionary type {type} has a key of type {keyTypeType}, for which we cannot generate a proper key in json notation");
+                    Logger.ReportDiagnostic(Diagnostic.Create(Diags.InvalidDictionaryKeyType, property.Locations.First(),
+                        keyTypeType.Name));
+                    throw new CannotGenerateResonableSerializerException();
+            }
+
+            var valueTypeType = typeArguments[1];
+            var valueType = GetPropertyJsonType(valueTypeType);
+
+            var dictionaryType = new DictionaryPropertyType(keyType, valueType);
+            return dictionaryType;
+        }
+
         private static bool IsGenerateJsonSerializerAttribute(AttributeData attribute)
         {
             return attribute.AttributeClass?.Name is "GenerateJsonSerializerAttribute" or "GenerateJsonSerializer";

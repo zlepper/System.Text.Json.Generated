@@ -23,6 +23,7 @@ namespace MyCode
 
             var expected = @"using System.Text.Json.Generated;
 using System.Text.Json;
+using System.Globalization;
 
 namespace MyCode
 {
@@ -71,6 +72,7 @@ namespace MyCode
 
             var expected = @"using System.Text.Json.Generated;
 using System.Text.Json;
+using System.Globalization;
 
 namespace MyCode
 {
@@ -119,6 +121,7 @@ namespace MyCode
 
             var expected = @"using System.Text.Json.Generated;
 using System.Text.Json;
+using System.Globalization;
 
 namespace MyCode
 {

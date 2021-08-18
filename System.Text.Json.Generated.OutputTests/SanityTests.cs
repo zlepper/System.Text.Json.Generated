@@ -34,6 +34,9 @@ namespace System.Text.Json.Generated.OutputTests
     [GenerateJsonSerializer]
     public partial class MySimpleDictionaryContainer
     {
-        public Dictionary<string, int> MyDict { get; set; } = new() {{"hello", 13}, {"world", 42}};
+        public Dictionary<string, int> MyDict1 { get; set; } = new() {{"hello", 13}, {"world", 42}};
+        public Dictionary<string, string> MyDict2 { get; set; } = new() {{"hello", "13"}, {"world", "42"}};
+        public Dictionary<string, bool> MyDict3 { get; set; } = new() {{"hello", true}, {"world", false}};
+        public Dictionary<int, string> MyDict4 { get; set; } = new() {{13, "hello"}, {42, "world"}};
     }
 }

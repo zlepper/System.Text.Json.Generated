@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Generated;
 using System.Text.Json;
+using System.Globalization;
 
 namespace {{type.namespace}}
 {
@@ -22,7 +23,7 @@ namespace {{type.namespace}}
             writer.WriteStartObject({{property_name_constant}});
             foreach(var keyValuePair in {{property.name}})
             {
-                writer.WriteNumber(keyValuePair.Key, keyValuePair.Value);
+                writer.{{get_write_method_name(property.dictionary_property_type.value_type)}}({{get_dictionary_key_output(property.dictionary_property_type.key_type, "keyValuePair.Key")}}, keyValuePair.Value);
             }
             writer.WriteEndObject();
               {{~else if property.json_type == "Object"~}}
