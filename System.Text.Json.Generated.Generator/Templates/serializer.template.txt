@@ -10,7 +10,7 @@ func create_dictionary(key, toIterate, dictionaryType, nestLevel = 2)
     indent + "foreach(var " + item + " in " + toIterate + ")\n"
     indent + "{\n"
     if dictionaryType.value_type == "Dictionary"
-        create_dictionary(item + ".Key", item + ".Value", dictionaryType.dictionary_property_type, nestLevel + 1)
+        create_dictionary(get_dictionary_key_output(dictionaryType.key_type, item + ".Key"), item + ".Value", dictionaryType.dictionary_property_type, nestLevel + 1)
     else
         indent + "    writer." + get_write_method_name(dictionaryType.value_type) + "(" + get_dictionary_key_output(dictionaryType.key_type, item + ".Key") + ", " + item + ".Value);\n"
     end
@@ -44,6 +44,9 @@ namespace {{type.namespace}}
             {
                 {{~if property.dictionary_property_type.value_type == "Dictionary"~}}
                 {{~create_dictionary(get_dictionary_key_output(property.dictionary_property_type.key_type, "keyValuePair1.Key"), "keyValuePair1.Value", property.dictionary_property_type.dictionary_property_type)~}}
+                {{~else if property.dictionary_property_type.value_type == "Object"~}}
+                writer.WritePropertyName({{get_dictionary_key_output(property.dictionary_property_type.key_type, "keyValuePair1.Key")}});
+                keyValuePair1.Value.SerializeToJson(writer);
                 {{~else~}}
                 writer.{{get_write_method_name(property.dictionary_property_type.value_type)}}({{get_dictionary_key_output(property.dictionary_property_type.key_type, "keyValuePair1.Key")}}, keyValuePair1.Value);
                 {{~end~}}
