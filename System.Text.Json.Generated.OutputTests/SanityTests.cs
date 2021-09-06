@@ -18,7 +18,7 @@ namespace System.Text.Json.Generated.OutputTests
         public void SerializesDictionaryProperty()
         {
             var c = new MySimpleDictionaryContainer();
-            
+
             VerifyOutputMatchesStandard(c);
         }
 
@@ -26,7 +26,7 @@ namespace System.Text.Json.Generated.OutputTests
         public void SerializesNestedObjects()
         {
             var c = new ContainerClass();
-            
+
             VerifyOutputMatchesStandard(c);
         }
 
@@ -34,7 +34,21 @@ namespace System.Text.Json.Generated.OutputTests
         public void SerializedNestedDictionaries()
         {
             var c = new NestedDictionary();
-            
+
+            VerifyOutputMatchesStandard(c);
+        }
+        [Test]
+        public void SerializedTopLevelDictionaryWithObject()
+        {
+            var c = new TopLevelDictionaryWithObject();
+
+            VerifyOutputMatchesStandard(c);
+        }
+        [Test]
+        public void SerializedNestedDictionaryWithObject()
+        {
+            var c = new NestedDictionaryWithObject();
+
             VerifyOutputMatchesStandard(c);
         }
     }
@@ -50,10 +64,10 @@ namespace System.Text.Json.Generated.OutputTests
     [GenerateJsonSerializer]
     public partial class MySimpleDictionaryContainer
     {
-        public Dictionary<string, int> MyDict1 { get; set; } = new() {{"hello", 13}, {"world", 42}};
-        public Dictionary<string, string> MyDict2 { get; set; } = new() {{"hello", "13"}, {"world", "42"}};
-        public Dictionary<string, bool> MyDict3 { get; set; } = new() {{"hello", true}, {"world", false}};
-        public Dictionary<int, string> MyDict4 { get; set; } = new() {{13, "hello"}, {42, "world"}};
+        public Dictionary<string, int> MyDict1 { get; set; } = new() { { "hello", 13 }, { "world", 42 } };
+        public Dictionary<string, string> MyDict2 { get; set; } = new() { { "hello", "13" }, { "world", "42" } };
+        public Dictionary<string, bool> MyDict3 { get; set; } = new() { { "hello", true }, { "world", false } };
+        public Dictionary<int, string> MyDict4 { get; set; } = new() { { 13, "hello" }, { 42, "world" } };
     }
 
     [GenerateJsonSerializer]
@@ -102,5 +116,20 @@ namespace System.Text.Json.Generated.OutputTests
         {
             { "foo", new NestedClass() }
         };
+    }
+
+    [GenerateJsonSerializer]
+    public partial class NestedDictionaryWithObject
+    {
+        public Dictionary<string, Dictionary<int, NestedClass>> MyDict { get; set; } =
+            new Dictionary<string, Dictionary<int, NestedClass>>
+            {
+                {
+                    "foo", new Dictionary<int, NestedClass>
+                    {
+                        { 42, new NestedClass() }
+                    }
+                }
+            };
     }
 }

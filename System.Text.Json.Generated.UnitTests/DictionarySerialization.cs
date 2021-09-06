@@ -135,5 +135,30 @@ namespace System.Text.Json.Generated.UnitTests
 
             VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"});
         }
+        
+        [Test]
+        public void HandleNestedObjectInNestedDictionary()
+        {
+            var code = GetCode("Dictionary<string, Dictionary<int, NestedClass>>", "MyDict", "new()");
+            var nestedClass = GetCode("int", "Int1", "42", "NestedClass");
+
+            var body = @"writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
+            foreach(var keyValuePair1 in MyDict)
+            {
+                writer.WriteStartObject(keyValuePair1.Key);
+                foreach(var keyValuePair2 in keyValuePair1.Value)
+                {
+                    writer.WritePropertyName(keyValuePair2.Key.ToString(CultureInfo.InvariantCulture));
+                    keyValuePair2.Value.SerializeToJson(writer);
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndObject();";
+            
+            var expected = GetExpected("MyDict", body);
+            var expectedNested = SimpleWriteCall("Int1", "WriteNumber", "NestedClass");
+
+            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"});
+        }
     }
 }

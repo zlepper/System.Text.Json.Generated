@@ -11,6 +11,9 @@ func create_dictionary(key, toIterate, dictionaryType, nestLevel = 2)
     indent + "{\n"
     if dictionaryType.value_type == "Dictionary"
         create_dictionary(get_dictionary_key_output(dictionaryType.key_type, item + ".Key"), item + ".Value", dictionaryType.dictionary_property_type, nestLevel + 1)
+    else if dictionaryType.value_type == "Object"
+        indent + "    writer.WritePropertyName(" + get_dictionary_key_output(dictionaryType.key_type, item + ".Key") + ");\n"
+        indent + "    " + item + ".Value.SerializeToJson(writer);\n"
     else
         indent + "    writer." + get_write_method_name(dictionaryType.value_type) + "(" + get_dictionary_key_output(dictionaryType.key_type, item + ".Key") + ", " + item + ".Value);\n"
     end
