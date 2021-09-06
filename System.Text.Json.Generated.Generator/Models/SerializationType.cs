@@ -6,10 +6,12 @@ namespace System.Text.Json.Generated.Generator.Models
         List<SerializerProperty> Properties);
 
 
-    public record SerializerProperty(string Name, PropertyJsonType JsonType);
-    public record SerializerDictionaryProperty(string Name, DictionaryPropertyType DictionaryPropertyType) : SerializerProperty(Name, PropertyJsonType.Dictionary);
+    public record SerializerProperty(string Name, PropertyJsonValueType JsonType);
+    public record SerializerDictionaryProperty(string Name, DictionaryPropertyType DictionaryPropertyType) : SerializerProperty(Name, PropertyJsonValueType.Dictionary);
 
-    public record DictionaryPropertyType(JsonKeyType KeyType, PropertyJsonType ValueType);
+    public record DictionaryPropertyType(JsonKeyType KeyType, PropertyJsonValueType ValueType);
+
+    public record DictionaryDictionaryTypePropertyType(JsonKeyType KeyType, DictionaryPropertyType DictionaryPropertyType) : DictionaryPropertyType(KeyType, PropertyJsonValueType.Dictionary);
 
     public enum DeclarationType
     {
@@ -18,7 +20,7 @@ namespace System.Text.Json.Generated.Generator.Models
         Struct
     }
 
-    public enum PropertyJsonType
+    public enum PropertyJsonValueType
     {
         Boolean,
         Number,

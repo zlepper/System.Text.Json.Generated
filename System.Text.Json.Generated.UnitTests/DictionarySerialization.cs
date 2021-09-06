@@ -8,9 +8,9 @@ namespace System.Text.Json.Generated.UnitTests
         private string WriteDictionary(string propertyName, string methodName)
         {
             var body = $@"writer.WriteStartObject(MyClassSerializerConstants.{propertyName}PropertyName);
-            foreach(var keyValuePair in MyDict)
+            foreach(var keyValuePair1 in MyDict)
             {{
-                writer.{methodName}(keyValuePair.Key, keyValuePair.Value);
+                writer.{methodName}(keyValuePair1.Key, keyValuePair1.Value);
             }}
             writer.WriteEndObject();";
 
@@ -32,9 +32,9 @@ namespace System.Text.Json.Generated.UnitTests
             var code = GetCode("Dictionary<int, string>", "MyDict", "new()");
 
             var body = @"writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
-            foreach(var keyValuePair in MyDict)
+            foreach(var keyValuePair1 in MyDict)
             {
-                writer.WriteString(keyValuePair.Key.ToString(CultureInfo.InvariantCulture), keyValuePair.Value);
+                writer.WriteString(keyValuePair1.Key.ToString(CultureInfo.InvariantCulture), keyValuePair1.Value);
             }
             writer.WriteEndObject();";
 
@@ -59,6 +59,33 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = WriteDictionary("MyDict", "WriteBoolean");
 
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+        }
+
+        [Test]
+        public void NestedDictionaries()
+        {
+            var code = GetCode("Dictionary<string, Dictionary<string, Dictionary<string, int>>>", "MyDict", "new()");
+            
+            var body = @"writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
+            foreach(var keyValuePair1 in MyDict)
+            {
+                writer.WriteStartObject(keyValuePair1.Key);
+                foreach(var keyValuePair2 in keyValuePair1.Value)
+                {
+                    writer.WriteStartObject(keyValuePair2.Key);
+                    foreach(var keyValuePair3 in keyValuePair2.Value)
+                    {
+                        writer.WriteNumber(keyValuePair3.Key, keyValuePair3.Value);
+                    }
+                    writer.WriteEndObject();
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndObject();";
+
+            var expected = GetExpected("MyDict", body);
+            
             VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
         }
     }

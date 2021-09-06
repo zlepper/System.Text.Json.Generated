@@ -77,15 +77,15 @@ namespace System.Text.Json.Generated.Generator
             };
         }
 
-        private static PropertyJsonType GetPropertyJsonType(ITypeSymbol type)
+        private static PropertyJsonValueType GetPropertyJsonType(ITypeSymbol type)
         {
             return type.SpecialType switch
             {
-                SpecialType.System_Boolean => PropertyJsonType.Boolean,
-                SpecialType.System_Int16 or SpecialType.System_Int32 or SpecialType.System_Int64 => PropertyJsonType
+                SpecialType.System_Boolean => PropertyJsonValueType.Boolean,
+                SpecialType.System_Int16 or SpecialType.System_Int32 or SpecialType.System_Int64 => PropertyJsonValueType
                     .Number,
-                SpecialType.System_String => PropertyJsonType.String,
-                _ => PropertyJsonType.Object
+                SpecialType.System_String => PropertyJsonValueType.String,
+                _ => PropertyJsonValueType.Object
             };
         }
 
@@ -126,43 +126,49 @@ namespace System.Text.Json.Generated.Generator
 
         private static SerializerDictionaryProperty GetDictionaryProperty(IPropertySymbol property)
         {
-            var dictionaryType = GetDictionaryPropertyType(property);
+            var dictionaryType = GetDictionaryPropertyType(property, property.Type);
             
             return new SerializerDictionaryProperty(property.Name, dictionaryType);
         }
 
-        private static DictionaryPropertyType GetDictionaryPropertyType(IPropertySymbol property)
+        private static DictionaryPropertyType GetDictionaryPropertyType(IPropertySymbol property, ITypeSymbol type)
         {
-            JsonKeyType keyType;
 
-            var type = property.Type;
             var dictInterface = type.AllInterfaces.Single(IsDictionaryInterface);
             var typeArguments = dictInterface.TypeArguments;
 
-            var keyTypeType = typeArguments[0];
-            switch (keyTypeType.SpecialType)
+            var keyType = GetDictionaryKeyType(property, typeArguments[0], type);
+
+            var valueTypeType = typeArguments[1];
+            if (IsDictionary(valueTypeType))
+            {
+                var nestedValueType = GetDictionaryPropertyType(property, valueTypeType);
+                return new DictionaryDictionaryTypePropertyType(keyType, nestedValueType);
+            }
+            else
+            {
+                var valueType = GetPropertyJsonType(valueTypeType);
+                return new DictionaryPropertyType(keyType, valueType);
+            }
+        }
+
+        private static JsonKeyType GetDictionaryKeyType(IPropertySymbol property, ITypeSymbol keyType, ITypeSymbol type)
+        {
+            switch (keyType.SpecialType)
             {
                 case SpecialType.System_String:
-                    keyType = JsonKeyType.String;
-                    break;
+                    return JsonKeyType.String;
                 case SpecialType.System_Int16:
                 case SpecialType.System_Int32:
                 case SpecialType.System_Int64:
-                    keyType = JsonKeyType.Number;
-                    break;
+                    return JsonKeyType.Number;
                 default:
                     Logger.Log(
-                        $"Dictionary type {type} has a key of type {keyTypeType}, for which we cannot generate a proper key in json notation");
+                        $"Dictionary type {type} has a key of type {keyType}, for which we cannot generate a proper key in json notation");
                     Logger.ReportDiagnostic(Diagnostic.Create(Diags.InvalidDictionaryKeyType, property.Locations.First(),
-                        keyTypeType.Name));
+                        keyType.Name));
                     throw new CannotGenerateResonableSerializerException();
             }
-
-            var valueTypeType = typeArguments[1];
-            var valueType = GetPropertyJsonType(valueTypeType);
-
-            var dictionaryType = new DictionaryPropertyType(keyType, valueType);
-            return dictionaryType;
         }
 
         private static bool IsGenerateJsonSerializerAttribute(AttributeData attribute)
