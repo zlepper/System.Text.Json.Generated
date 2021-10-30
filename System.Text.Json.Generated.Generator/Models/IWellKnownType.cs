@@ -11,7 +11,7 @@ public interface IWellKnownType : IComparable
     IEnumerable<IWellKnownType> GetNestedTypes();
 }
 
-public record WellKnowDictionary(string KeyType, string ConcreteDictionaryType, IWellKnownType ValueType) : IWellKnownType, IComparable<WellKnowDictionary>
+public record WellKnownDictionary(string KeyType, string ConcreteDictionaryType, IWellKnownType ValueType) : IWellKnownType, IComparable<WellKnownDictionary>
 {
     public string CreateMethod()
     {
@@ -62,7 +62,7 @@ public record WellKnowDictionary(string KeyType, string ConcreteDictionaryType, 
         }
     }
 
-    public int CompareTo(WellKnowDictionary? other)
+    public int CompareTo(WellKnownDictionary? other)
     {
         if (ReferenceEquals(this, other)) return 0;
         if (ReferenceEquals(null, other)) return 1;
@@ -78,7 +78,7 @@ public record WellKnowDictionary(string KeyType, string ConcreteDictionaryType, 
         
         return obj switch
         {
-            WellKnowDictionary same => CompareTo(same),
+            WellKnownDictionary same => CompareTo(same),
             WellKnownValueType or SerializableValueType or WellKnownList => 1,
             _ => -1,
         };
@@ -153,7 +153,7 @@ public record WellKnownValueType(string TypeName) : IWellKnownType, IComparable<
 {
     public string CreateMethod()
     {
-        throw new NotImplementedException("Should not be called directly");
+        throw new InvalidOperationException("Should not be called directly");
     }
 
     public bool SerializesSerializableType()

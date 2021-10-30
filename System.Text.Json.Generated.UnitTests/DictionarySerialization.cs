@@ -24,11 +24,11 @@ namespace System.Text.Json.Generated.UnitTests
 
             foreach (var type in typeNames.Skip(1).SkipLast(1).Reverse())
             {
-                outer = new WellKnowDictionary(type, DictionaryTypeName, outer);
+                outer = new WellKnownDictionary(type, DictionaryTypeName, outer);
                 yield return outer;
             }
 
-            yield return new WellKnowDictionary(typeNames.First(), DictionaryTypeName, outer);
+            yield return new WellKnownDictionary(typeNames.First(), DictionaryTypeName, outer);
         }
         
         [Test]
@@ -97,7 +97,7 @@ namespace System.Text.Json.Generated.UnitTests
             var expected = WriteDictionary("MyDict");
             var expectedNested = SimpleWriteCall("Int1", "WriteNumber", "NestedClass");
 
-            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"}, new WellKnowDictionary("string", DictionaryTypeName, new SerializableValueType("global::MyCode.NestedClass")));
+            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"}, new WellKnownDictionary("string", DictionaryTypeName, new SerializableValueType("global::MyCode.NestedClass")));
         }
         
         [Test]
@@ -109,7 +109,7 @@ namespace System.Text.Json.Generated.UnitTests
             var expected = WriteDictionary("MyDict");
             var expectedNested = SimpleWriteCall("Int1", "WriteNumber", "NestedClass");
 
-            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"}, new WellKnowDictionary("string", DictionaryTypeName, new WellKnowDictionary("int", DictionaryTypeName, new SerializableValueType("global::MyCode.NestedClass"))));
+            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"}, new WellKnownDictionary("string", DictionaryTypeName, new WellKnownDictionary("int", DictionaryTypeName, new SerializableValueType("global::MyCode.NestedClass"))));
         }
     }
 }

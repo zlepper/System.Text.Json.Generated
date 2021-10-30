@@ -66,14 +66,10 @@ namespace MyCode
             {propertyName}.SerializeToJson(writer);";
         }
 
-        protected string GetListWriteCall(string propertyName, string className, string writeMethod)
+        protected string GetSerializeToJsonWriteCall(string propertyName, string className)
         {
-            return @$"writer.WriteStartArray({className}SerializerConstants.{propertyName}PropertyName);
-            foreach(var item1 in {propertyName})
-            {{
-            writer.{writeMethod}(
-            }}
-            writer.WriteEndArray()";
+            return @$"writer.WritePropertyName({className}SerializerConstants.{propertyName}PropertyName);
+            ForeignTypeSerializer.SerializeToJson({propertyName}, writer);";
         }
     }
 }

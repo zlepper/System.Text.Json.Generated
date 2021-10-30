@@ -115,7 +115,7 @@ namespace System.Text.Json.Generated.Generator
                 }
 
                 var concreteTypeName = type.GetGlobalName();
-                var self = new WellKnowDictionary(GetSimpleTypeName(keyType), concreteTypeName, AddWellKnownSerializerType(valueType, propertyLocation));
+                var self = new WellKnownDictionary(GetSimpleTypeName(keyType), concreteTypeName, AddWellKnownSerializerType(valueType, propertyLocation));
                 WellKnownTypesToSerialize.Add(self);
                 return self;
             } 
