@@ -13,6 +13,7 @@ namespace System.Text.Json.Generated.Generator
         private readonly CancellationToken _cancellationToken;
 
         public List<SerializationType> Types = new();
+        public HashSet<IWellKnownType> WellKnownTypesToSerialize = new();
 
         public SyntaxReceiver(CancellationToken cancellationToken)
         {
@@ -56,7 +57,7 @@ namespace System.Text.Json.Generated.Generator
                     return;
                 }
             }
-            catch (CannotGenerateResonableSerializerException)
+            catch (CannotGenerateReasonableSerializerException)
             {
                 Logger.ReportDiagnostic(Diagnostic.Create(Diags.CannotGenerateReasonableSerializerMethod, context.Node.GetLocation()));
             }
@@ -77,7 +78,7 @@ namespace System.Text.Json.Generated.Generator
             };
         }
 
-        private static PropertyJsonValueType GetPropertyJsonType(ITypeSymbol type)
+        public static PropertyJsonValueType GetPropertyJsonType(ITypeSymbol type)
         {
             return type.SpecialType switch
             {
@@ -89,88 +90,79 @@ namespace System.Text.Json.Generated.Generator
             };
         }
 
-        private static bool IsDictionary(ITypeSymbol type)
+        private SerializerProperty GetSerializationProperty(IPropertySymbol property)
         {
-            return type.AllInterfaces.Any(IsDictionaryInterface);
+            if (IsExternalType(property.Type))
+            {
+                AddWellKnownSerializerType(property.Type, property.Locations.FirstOrDefault());
+                return new SerializerProperty(property.Name, PropertyJsonValueType.External);
+            }
+            
+            return new SerializerProperty(property.Name, GetPropertyJsonType(property.Type));
         }
 
-        private static bool IsDictionaryInterface(INamedTypeSymbol i)
+
+        private IWellKnownType AddWellKnownSerializerType(ITypeSymbol type, Location? propertyLocation)
         {
-            return i is
+            if (DictionaryInspector.IsDictionary(type))
             {
-                Name: "IDictionary",
-                ContainingNamespace:
+                var (keyType, valueType) = DictionaryInspector.GetTypeArguments(type);
+                var keyJsonType = GetPropertyJsonType(keyType);
+                if (keyJsonType is not PropertyJsonValueType.String and not PropertyJsonValueType.Number)
                 {
-                    Name: "Generic",
-                    ContainingNamespace:
-                    {
-                        Name: "Collections",
-                        ContainingNamespace: { Name: "System", ContainingNamespace: { IsGlobalNamespace: true } }
-                    }
+                    Logger.ReportDiagnostic(Diagnostic.Create(Diags.InvalidDictionaryKeyType, propertyLocation, keyType.ToDisplayString()));
+                    throw new CannotGenerateReasonableSerializerException();
                 }
+
+                var concreteTypeName = type.GetGlobalName();
+                var self = new WellKnowDictionary(GetSimpleTypeName(keyType), concreteTypeName, AddWellKnownSerializerType(valueType, propertyLocation));
+                WellKnownTypesToSerialize.Add(self);
+                return self;
+            } 
+            else if (ListInspector.IsList(type))
+            {
+                var concreteTypeName = type.GetGlobalName();
+                var self = new WellKnownList(concreteTypeName, AddWellKnownSerializerType(ListInspector.GetTypeArgument(type), propertyLocation));
+                WellKnownTypesToSerialize.Add(self);
+                return self;
+            }
+            else if(IsSimpleType(type))
+            {
+                return new WellKnownValueType(GetSimpleTypeName(type));
+            }
+            else
+            {
+                return new SerializableValueType(type.GetGlobalName());
+            }
+        }
+
+        private static bool IsExternalType(ITypeSymbol type)
+        {
+            return DictionaryInspector.IsDictionary(type) || ListInspector.IsList(type);
+        }
+        
+        private static bool IsSimpleType(ITypeSymbol type)
+        {
+            return GetPropertyJsonType(type) is PropertyJsonValueType.Boolean or PropertyJsonValueType.Number
+                or PropertyJsonValueType.String;
+        }
+        
+        
+        public static string GetSimpleTypeName(ITypeSymbol type)
+        {
+            return type.SpecialType switch
+            {
+                SpecialType.System_Boolean => "bool",
+                SpecialType.System_Int16 => "short",
+                SpecialType.System_Int32 => "int",
+                SpecialType.System_Int64 => "long",
+                SpecialType.System_UInt32 => "uint",
+                SpecialType.System_UInt64 => "ulong",
+                SpecialType.System_String => "string",
+                _ => throw new ArgumentOutOfRangeException(nameof(type.SpecialType), type.SpecialType, "Unknown simple type")
             };
         }
-
-        private static SerializerProperty GetSerializationProperty(IPropertySymbol property)
-        {
-            if (IsDictionary(property.Type))
-            {
-                return GetDictionaryProperty(property);
-            }
-            else
-            {
-                return new SerializerProperty(property.Name, GetPropertyJsonType(property.Type));
-            }
-        }
-
-
-        private static SerializerDictionaryProperty GetDictionaryProperty(IPropertySymbol property)
-        {
-            var dictionaryType = GetDictionaryPropertyType(property, property.Type);
-            
-            return new SerializerDictionaryProperty(property.Name, dictionaryType);
-        }
-
-        private static DictionaryPropertyType GetDictionaryPropertyType(IPropertySymbol property, ITypeSymbol type)
-        {
-
-            var dictInterface = type.AllInterfaces.Single(IsDictionaryInterface);
-            var typeArguments = dictInterface.TypeArguments;
-
-            var keyType = GetDictionaryKeyType(property, typeArguments[0], type);
-
-            var valueTypeType = typeArguments[1];
-            if (IsDictionary(valueTypeType))
-            {
-                var nestedValueType = GetDictionaryPropertyType(property, valueTypeType);
-                return new DictionaryDictionaryTypePropertyType(keyType, nestedValueType);
-            }
-            else
-            {
-                var valueType = GetPropertyJsonType(valueTypeType);
-                return new DictionaryPropertyType(keyType, valueType);
-            }
-        }
-
-        private static JsonKeyType GetDictionaryKeyType(IPropertySymbol property, ITypeSymbol keyType, ITypeSymbol type)
-        {
-            switch (keyType.SpecialType)
-            {
-                case SpecialType.System_String:
-                    return JsonKeyType.String;
-                case SpecialType.System_Int16:
-                case SpecialType.System_Int32:
-                case SpecialType.System_Int64:
-                    return JsonKeyType.Number;
-                default:
-                    Logger.Log(
-                        $"Dictionary type {type} has a key of type {keyType}, for which we cannot generate a proper key in json notation");
-                    Logger.ReportDiagnostic(Diagnostic.Create(Diags.InvalidDictionaryKeyType, property.Locations.First(),
-                        keyType.Name));
-                    throw new CannotGenerateResonableSerializerException();
-            }
-        }
-
+        
         private static bool IsGenerateJsonSerializerAttribute(AttributeData attribute)
         {
             return attribute.AttributeClass?.Name is "GenerateJsonSerializerAttribute" or "GenerateJsonSerializer";

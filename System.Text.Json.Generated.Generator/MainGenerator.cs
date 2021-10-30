@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Generated.Generator.Helpers;
 using System.Text.Json.Generated.Generator.Models;
 using Microsoft.CodeAnalysis;
@@ -17,13 +18,14 @@ namespace System.Text.Json.Generated.Generator
         {
             if (context.SyntaxContextReceiver is not SyntaxReceiver sr) return;
 
-            GenerateSerializers(sr.Types, context);
+            GenerateSerializers(sr.Types, sr.WellKnownTypesToSerialize, context);
 
             DumpDiagnostics(context);
             // DumpLogs(context);
         }
 
-        private void GenerateSerializers(List<SerializationType> types, GeneratorExecutionContext context)
+        private void GenerateSerializers(List<SerializationType> types,
+            HashSet<IWellKnownType> wellKnownTypesToSerialize, GeneratorExecutionContext context)
         {
             var template = new TemplateExecutor("serializer");
 
@@ -43,6 +45,16 @@ namespace System.Text.Json.Generated.Generator
                     Logger.ReportDiagnostic(Diagnostic.Create(Diags.UnknownAnalyzerError, null, e));
                 }
             }
+
+            try
+            {
+                var source = GetWellKnownTypeSerializerCode(wellKnownTypesToSerialize);
+                context.AddSource(ForeignTypeSerializerFileName, source);
+            }
+            catch (Exception e)
+            {
+                Logger.ReportDiagnostic(Diagnostic.Create(Diags.UnknownAnalyzerError, null, e));
+            }
         }
 
         private static void DumpDiagnostics(GeneratorExecutionContext context)
@@ -59,5 +71,37 @@ namespace System.Text.Json.Generated.Generator
         {
             var _ = new TemplateExecutor("serializer");
         }
+
+        public static string GetWellKnownTypeSerializerCode(IEnumerable<IWellKnownType> wellKnownTypes)
+        {
+            var fullSet = wellKnownTypes
+                .SelectMany(self => new[] { self }.Concat(self.GetNestedTypes()))
+                .Where(type => type is not WellKnownValueType)
+                .Distinct()
+                .ToList();
+            
+            fullSet.Sort();
+            
+            var builder = new StringBuilder(@"using System.Collections.Generic;
+using System.Globalization;
+
+namespace System.Text.Json.Generated
+{
+    internal static class ForeignTypeSerializer
+    {");
+
+            foreach (var type in fullSet)
+            {
+                builder.AppendLine(type.CreateMethod());
+            }
+
+            builder.AppendLine(@"
+    }
+}");
+
+            return builder.ToString();
+        }
+        
+        public const string ForeignTypeSerializerFileName = "System.Text.Json.Generated.ForeignTypeSerializer";
     }
 }

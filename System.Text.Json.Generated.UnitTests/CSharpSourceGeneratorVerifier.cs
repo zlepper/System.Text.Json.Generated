@@ -1,6 +1,8 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text.Json.Generated.Generator;
+using System.Text.Json.Generated.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
@@ -51,29 +53,43 @@ namespace System.Text.Json.Generated.UnitTests
 
     public class VerifyMainGenerator 
     {
-        private static CSharpSourceGeneratorVerifier<MainGenerator>.Test SimpleTest(string[] code, string[] expectedCode, string[] filenames)
+        private static CSharpSourceGeneratorVerifier<MainGenerator>.Test SimpleTest(string[] code, string[] expectedCode, string[] filenames, IEnumerable<IWellKnownType> wellKnownTypes)
         {
             var test = new CSharpSourceGeneratorVerifier<MainGenerator>.Test();
             foreach (var s in code)
             {
                 test.TestState.Sources.Add(s);
             }
+            
             foreach (var (expected, filename) in expectedCode.Zip(filenames))
             {
                 test.TestState.GeneratedSources.Add((typeof(MainGenerator), $"{filename}.cs", SourceText.From(expected, Encoding.UTF8)));
             }
+            var wellKnownTypesSerializerCode = MainGenerator.GetWellKnownTypeSerializerCode(wellKnownTypes);
+            test.TestState.GeneratedSources.Add((typeof(MainGenerator), $"{MainGenerator.ForeignTypeSerializerFileName}.cs", SourceText.From(wellKnownTypesSerializerCode, Encoding.UTF8)));
 
             return test;
         }
 
-        public static void RunSimpleTest(string code, string expected, string filename)
+        public static void RunSimpleTest(string code, string expected, string filename, params IWellKnownType[] wellKnownTypes)
         {
-            RunSimpleTest(new []{code}, new []{expected}, new []{filename});
+            RunSimpleTest(code, expected, filename, wellKnownTypes.AsEnumerable());
         }
 
-        public static void RunSimpleTest(string[] code, string[] expected, string[] filename)
+        public static void RunSimpleTest(string code, string expected, string filename, IEnumerable<IWellKnownType> wellKnownTypes)
         {
-            var test = SimpleTest(code, expected, filename);
+            RunSimpleTest(new []{code}, new []{expected}, new []{filename}, wellKnownTypes);
+        }
+
+        public static void RunSimpleTest(string[] code, string[] expected, string[] filename,
+            params IWellKnownType[] wellKnownTypes)
+        {
+            RunSimpleTest(code, expected, filename, wellKnownTypes.AsEnumerable());
+        }
+
+        public static void RunSimpleTest(string[] code, string[] expected, string[] filename, IEnumerable<IWellKnownType> wellKnownTypes)
+        {
+            var test = SimpleTest(code, expected, filename, wellKnownTypes);
             test.RunAsync().GetAwaiter().GetResult();
         }
 

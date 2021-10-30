@@ -1,20 +1,34 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Generated.Generator.Models;
+using NUnit.Framework;
 
 namespace System.Text.Json.Generated.UnitTests
 {
     [TestFixture]
     public class DictionarySerialization : BaseTests
     {
-        private string WriteDictionary(string propertyName, string methodName)
+        private const string DictionaryTypeName = "global::System.Collections.Generic.Dictionary";
+        
+        private string WriteDictionary(string propertyName)
         {
-            var body = $@"writer.WriteStartObject(MyClassSerializerConstants.{propertyName}PropertyName);
-            foreach(var keyValuePair1 in MyDict)
-            {{
-                writer.{methodName}(keyValuePair1.Key, keyValuePair1.Value);
-            }}
-            writer.WriteEndObject();";
+            var body = $@"writer.WritePropertyName(MyClassSerializerConstants.{propertyName}PropertyName);
+            ForeignTypeSerializer.SerializeToJson(MyDict, writer);";
 
             return GetExpected(propertyName, body);
+        }
+
+        private IEnumerable<IWellKnownType> CreateWellKnownDictionary(params string[] typeNames)
+        {
+            IWellKnownType outer = new WellKnownValueType(typeNames.Last());
+
+            foreach (var type in typeNames.Skip(1).SkipLast(1).Reverse())
+            {
+                outer = new WellKnowDictionary(type, DictionaryTypeName, outer);
+                yield return outer;
+            }
+
+            yield return new WellKnowDictionary(typeNames.First(), DictionaryTypeName, outer);
         }
         
         [Test]
@@ -22,44 +36,36 @@ namespace System.Text.Json.Generated.UnitTests
         {
             var code = GetCode("Dictionary<string, int>", "MyDict", "new()");
 
-            var expected = WriteDictionary("MyDict", "WriteNumber");
+            var expected = WriteDictionary("MyDict");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", CreateWellKnownDictionary("string", "int"));
         }
         [Test]
         public void HandleIntString()
         {
             var code = GetCode("Dictionary<int, string>", "MyDict", "new()");
 
-            var body = @"writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
-            foreach(var keyValuePair1 in MyDict)
-            {
-                writer.WriteString(keyValuePair1.Key.ToString(CultureInfo.InvariantCulture), keyValuePair1.Value);
-            }
-            writer.WriteEndObject();";
+            var expected = WriteDictionary("MyDict");
 
-            var expected = GetExpected("MyDict", body);
-
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", CreateWellKnownDictionary("int", "string"));
         }
         [Test]
         public void HandleStringString()
         {
-            
             var code = GetCode("Dictionary<string, string>", "MyDict", "new()");
 
-            var expected = WriteDictionary("MyDict", "WriteString");
+            var expected = WriteDictionary("MyDict");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", CreateWellKnownDictionary("string", "string"));
         }
         [Test]
         public void HandleStringBool()
         {
             var code = GetCode("Dictionary<string, bool>", "MyDict", "new()");
 
-            var expected = WriteDictionary("MyDict", "WriteBoolean");
+            var expected = WriteDictionary("MyDict");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", CreateWellKnownDictionary("string", "bool"));
         }
 
         [Test]
@@ -67,26 +73,9 @@ namespace System.Text.Json.Generated.UnitTests
         {
             var code = GetCode("Dictionary<string, Dictionary<string, Dictionary<string, int>>>", "MyDict", "new()");
             
-            var body = @"writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
-            foreach(var keyValuePair1 in MyDict)
-            {
-                writer.WriteStartObject(keyValuePair1.Key);
-                foreach(var keyValuePair2 in keyValuePair1.Value)
-                {
-                    writer.WriteStartObject(keyValuePair2.Key);
-                    foreach(var keyValuePair3 in keyValuePair2.Value)
-                    {
-                        writer.WriteNumber(keyValuePair3.Key, keyValuePair3.Value);
-                    }
-                    writer.WriteEndObject();
-                }
-                writer.WriteEndObject();
-            }
-            writer.WriteEndObject();";
-
-            var expected = GetExpected("MyDict", body);
+            var expected = WriteDictionary("MyDict");
             
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", CreateWellKnownDictionary("string", "string", "string", "int"));
         }
         
         [Test]
@@ -94,26 +83,9 @@ namespace System.Text.Json.Generated.UnitTests
         {
             var code = GetCode("Dictionary<int, Dictionary<int, Dictionary<int, int>>>", "MyDict", "new()");
             
-            var body = @"writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
-            foreach(var keyValuePair1 in MyDict)
-            {
-                writer.WriteStartObject(keyValuePair1.Key.ToString(CultureInfo.InvariantCulture));
-                foreach(var keyValuePair2 in keyValuePair1.Value)
-                {
-                    writer.WriteStartObject(keyValuePair2.Key.ToString(CultureInfo.InvariantCulture));
-                    foreach(var keyValuePair3 in keyValuePair2.Value)
-                    {
-                        writer.WriteNumber(keyValuePair3.Key.ToString(CultureInfo.InvariantCulture), keyValuePair3.Value);
-                    }
-                    writer.WriteEndObject();
-                }
-                writer.WriteEndObject();
-            }
-            writer.WriteEndObject();";
-
-            var expected = GetExpected("MyDict", body);
+            var expected = WriteDictionary("MyDict");
             
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", CreateWellKnownDictionary("int", "int", "int", "int"));
         }
         
         [Test]
@@ -122,18 +94,10 @@ namespace System.Text.Json.Generated.UnitTests
             var code = GetCode("Dictionary<string, NestedClass>", "MyDict", "new()");
             var nestedClass = GetCode("int", "Int1", "42", "NestedClass");
 
-            var body = @"writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
-            foreach(var keyValuePair1 in MyDict)
-            {
-                writer.WritePropertyName(keyValuePair1.Key);
-                keyValuePair1.Value.SerializeToJson(writer);
-            }
-            writer.WriteEndObject();";
-            
-            var expected = GetExpected("MyDict", body);
+            var expected = WriteDictionary("MyDict");
             var expectedNested = SimpleWriteCall("Int1", "WriteNumber", "NestedClass");
 
-            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"});
+            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"}, new WellKnowDictionary("string", DictionaryTypeName, new SerializableValueType("global::MyCode.NestedClass")));
         }
         
         [Test]
@@ -142,23 +106,10 @@ namespace System.Text.Json.Generated.UnitTests
             var code = GetCode("Dictionary<string, Dictionary<int, NestedClass>>", "MyDict", "new()");
             var nestedClass = GetCode("int", "Int1", "42", "NestedClass");
 
-            var body = @"writer.WriteStartObject(MyClassSerializerConstants.MyDictPropertyName);
-            foreach(var keyValuePair1 in MyDict)
-            {
-                writer.WriteStartObject(keyValuePair1.Key);
-                foreach(var keyValuePair2 in keyValuePair1.Value)
-                {
-                    writer.WritePropertyName(keyValuePair2.Key.ToString(CultureInfo.InvariantCulture));
-                    keyValuePair2.Value.SerializeToJson(writer);
-                }
-                writer.WriteEndObject();
-            }
-            writer.WriteEndObject();";
-            
-            var expected = GetExpected("MyDict", body);
+            var expected = WriteDictionary("MyDict");
             var expectedNested = SimpleWriteCall("Int1", "WriteNumber", "NestedClass");
 
-            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"});
+            VerifyMainGenerator.RunSimpleTest(new []{code, nestedClass}, new []{expected, expectedNested}, new []{"MyCode.MyClass", "MyCode.NestedClass"}, new WellKnowDictionary("string", DictionaryTypeName, new WellKnowDictionary("int", DictionaryTypeName, new SerializableValueType("global::MyCode.NestedClass"))));
         }
     }
 }

@@ -15,15 +15,5 @@ namespace System.Text.Json.Generated.Generator.Helpers
                     $"No method exists for writing {propertyJsonType} directly to output")
             };
         }
-
-        public static string GetDictionaryKeyOutput(JsonKeyType keyType, string valueName)
-        {
-            return keyType switch
-            {
-                JsonKeyType.Number => $"{valueName}.ToString(CultureInfo.InvariantCulture)",
-                JsonKeyType.String => valueName,
-                _ => throw new ArgumentOutOfRangeException(nameof(keyType), keyType, "Unknown key type")
-            };
-        }
     }
 }

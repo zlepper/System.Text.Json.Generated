@@ -7,11 +7,6 @@ namespace System.Text.Json.Generated.Generator.Models
 
 
     public record SerializerProperty(string Name, PropertyJsonValueType JsonType);
-    public record SerializerDictionaryProperty(string Name, DictionaryPropertyType DictionaryPropertyType) : SerializerProperty(Name, PropertyJsonValueType.Dictionary);
-
-    public record DictionaryPropertyType(JsonKeyType KeyType, PropertyJsonValueType ValueType);
-
-    public record DictionaryDictionaryTypePropertyType(JsonKeyType KeyType, DictionaryPropertyType DictionaryPropertyType) : DictionaryPropertyType(KeyType, PropertyJsonValueType.Dictionary);
 
     public enum DeclarationType
     {
@@ -26,12 +21,6 @@ namespace System.Text.Json.Generated.Generator.Models
         Number,
         String,
         Object,
-        Dictionary,
-    }
-
-    public enum JsonKeyType
-    {
-        String,
-        Number,
+        External
     }
 }

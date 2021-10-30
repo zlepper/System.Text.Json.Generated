@@ -65,5 +65,15 @@ namespace MyCode
             return @$"writer.WritePropertyName({className}SerializerConstants.{propertyName}PropertyName);
             {propertyName}.SerializeToJson(writer);";
         }
+
+        protected string GetListWriteCall(string propertyName, string className, string writeMethod)
+        {
+            return @$"writer.WriteStartArray({className}SerializerConstants.{propertyName}PropertyName);
+            foreach(var item1 in {propertyName})
+            {{
+            writer.{writeMethod}(
+            }}
+            writer.WriteEndArray()";
+        }
     }
 }
