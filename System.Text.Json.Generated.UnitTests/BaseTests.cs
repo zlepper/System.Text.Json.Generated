@@ -66,7 +66,7 @@ namespace MyCode
             {propertyName}.SerializeToJson(writer);";
         }
 
-        protected string GetSerializeToJsonWriteCall(string propertyName, string className)
+        protected string GetSerializeToJsonWriteCall(string propertyName, string className = "MyClass")
         {
             return @$"writer.WritePropertyName({className}SerializerConstants.{propertyName}PropertyName);
             ForeignTypeSerializer.SerializeToJson({propertyName}, writer);";

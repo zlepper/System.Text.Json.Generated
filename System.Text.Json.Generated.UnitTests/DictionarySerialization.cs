@@ -12,8 +12,7 @@ namespace System.Text.Json.Generated.UnitTests
         
         private string WriteDictionary(string propertyName)
         {
-            var body = $@"writer.WritePropertyName(MyClassSerializerConstants.{propertyName}PropertyName);
-            ForeignTypeSerializer.SerializeToJson(MyDict, writer);";
+            var body = GetSerializeToJsonWriteCall(propertyName);
 
             return GetExpected(propertyName, body);
         }
