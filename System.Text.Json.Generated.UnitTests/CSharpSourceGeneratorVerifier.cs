@@ -65,7 +65,7 @@ namespace System.Text.Json.Generated.UnitTests
             {
                 test.TestState.GeneratedSources.Add((typeof(MainGenerator), $"{filename}.cs", SourceText.From(expected, Encoding.UTF8)));
             }
-            var wellKnownTypesSerializerCode = MainGenerator.GetWellKnownTypeSerializerCode(wellKnownTypes);
+            var wellKnownTypesSerializerCode = MainGenerator.GetWellKnownTypeSerializerCode(wellKnownTypes.Concat(filenames.Select(name => new SerializableValueType($"global::{name}"))).ToList());
             test.TestState.GeneratedSources.Add((typeof(MainGenerator), $"{MainGenerator.ForeignTypeSerializerFileName}.cs", SourceText.From(wellKnownTypesSerializerCode, Encoding.UTF8)));
 
             return test;

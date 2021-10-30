@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Reports;
+using BenchmarkDotNet.Running;
 
 namespace System.Text.Json.Generated.Benchmarks
 {
@@ -6,7 +7,8 @@ namespace System.Text.Json.Generated.Benchmarks
     {
         public static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<Tests>();
+            BenchmarkRunner.Run<BaseSerializerPerformance>();
+            // BenchmarkRunner.Run<SubTypeSerializationPerformance>();
         }
     }
 }

@@ -120,7 +120,7 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = WriteDictionary("MyDict");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", new WellKnownDictionary("string", DictionaryTypeName, new WellKnownList(ListTypeName, new WellKnownValueType("int"))));
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", GetWellKnownType(),  new WellKnownDictionary("string", DictionaryTypeName, new WellKnownList(ListTypeName, new WellKnownValueType("int"))));
         }
         
         [Test]
@@ -130,7 +130,7 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = WriteDictionary("MyDict");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", new WellKnownDictionary("string", DictionaryTypeName, new WellKnownList(ListTypeName, new WellKnownDictionary("int", DictionaryTypeName, new WellKnownValueType("string")))));
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", GetWellKnownType(), new WellKnownDictionary("string", DictionaryTypeName, new WellKnownList(ListTypeName, new WellKnownDictionary("int", DictionaryTypeName, new WellKnownValueType("string")))));
         }
         
         [Test]
@@ -140,7 +140,7 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = WriteDictionary("MyList");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", new WellKnownList(ListTypeName, new WellKnownList(ListTypeName, new WellKnownDictionary("int", DictionaryTypeName, new WellKnownValueType("string")))));
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", GetWellKnownType(), new WellKnownList(ListTypeName, new WellKnownList(ListTypeName, new WellKnownDictionary("int", DictionaryTypeName, new WellKnownValueType("string")))));
         }
         
         [Test]
@@ -150,7 +150,7 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = WriteDictionary("MyList");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", new WellKnownList(ListTypeName, new WellKnownDictionary("string", DictionaryTypeName, new WellKnownDictionary("int", DictionaryTypeName, new WellKnownValueType("string")))));
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", GetWellKnownType(), new WellKnownList(ListTypeName, new WellKnownDictionary("string", DictionaryTypeName, new WellKnownDictionary("int", DictionaryTypeName, new WellKnownValueType("string")))));
         }
         
         [Test]
@@ -160,7 +160,7 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = WriteDictionary("MyList");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", new WellKnownList(ListTypeName, new WellKnownDictionary("string", DictionaryTypeName, new WellKnownList(ListTypeName, new WellKnownValueType("string")))));
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", GetWellKnownType(), new WellKnownList(ListTypeName, new WellKnownDictionary("string", DictionaryTypeName, new WellKnownList(ListTypeName, new WellKnownValueType("string")))));
         }
     }
 }

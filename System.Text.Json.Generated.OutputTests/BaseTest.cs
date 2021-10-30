@@ -21,7 +21,7 @@ namespace System.Text.Json.Generated.OutputTests
         protected string SerializeUsingStdLib<T>(T serializable)
             where T : IJsonSerializable
         {
-            return JsonSerializer.Serialize(serializable);
+            return JsonSerializer.Serialize(serializable, serializable.GetType());
         }
 
         protected void VerifyOutputMatchesStandard<T>(T serializable)

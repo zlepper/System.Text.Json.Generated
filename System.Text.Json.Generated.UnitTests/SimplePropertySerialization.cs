@@ -12,7 +12,7 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = SimpleWriteCall("String1", "WriteString");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", GetWellKnownType());
         }
         
         [Test]
@@ -22,7 +22,7 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = SimpleWriteCall("Int1", "WriteNumber");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", GetWellKnownType());
         }
         
         [Test]
@@ -32,7 +32,7 @@ namespace System.Text.Json.Generated.UnitTests
 
             var expected = SimpleWriteCall("Bool1", "WriteBoolean");
 
-            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass");
+            VerifyMainGenerator.RunSimpleTest(code, expected, "MyCode.MyClass", GetWellKnownType());
         }
     }
 }

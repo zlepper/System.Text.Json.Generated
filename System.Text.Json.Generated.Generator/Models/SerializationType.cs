@@ -3,7 +3,7 @@
 namespace System.Text.Json.Generated.Generator.Models
 {
     public record SerializationType(string Name, string Namespace, DeclarationType DeclarationType,
-        List<SerializerProperty> Properties);
+        List<SerializerProperty> Properties, bool HasParent);
 
 
     public record SerializerProperty(string Name, PropertyJsonValueType JsonType);

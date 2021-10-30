@@ -51,6 +51,21 @@ namespace System.Text.Json.Generated.OutputTests
 
             VerifyOutputMatchesStandard(c);
         }
+        [Test]
+        public void SerializedListWithDictionaryWithObject()
+        {
+            var c = new ListWithDictionaryWithObject();
+
+            VerifyOutputMatchesStandard(c);
+        }
+        
+        [Test]
+        public void SerializesChildTypes()
+        {
+            ParentClass c = new SubClass();
+
+            VerifyOutputMatchesStandard(c);
+        }
     }
 
     [GenerateJsonSerializer]
@@ -120,6 +135,51 @@ namespace System.Text.Json.Generated.OutputTests
 
     [GenerateJsonSerializer]
     public partial class NestedDictionaryWithObject
+    {
+        public Dictionary<string, Dictionary<int, NestedClass>> MyDict { get; set; } =
+            new Dictionary<string, Dictionary<int, NestedClass>>
+            {
+                {
+                    "foo", new Dictionary<int, NestedClass>
+                    {
+                        { 42, new NestedClass() }
+                    }
+                }
+            };
+    }
+    
+    [GenerateJsonSerializer]
+    public partial class ListWithDictionaryWithObject
+    {
+        public List<Dictionary<int, NestedClass>> MyList { get; set; } =
+            new List<Dictionary<int, NestedClass>>
+            {
+                {
+                    new Dictionary<int, NestedClass>
+                    {
+                        { 42, new NestedClass() }
+                    }
+                }
+            };
+    }
+    
+    [GenerateJsonSerializer]
+    public partial class ParentClass
+    {
+        public List<Dictionary<int, NestedClass>> MyList { get; set; } =
+            new List<Dictionary<int, NestedClass>>
+            {
+                {
+                    new Dictionary<int, NestedClass>
+                    {
+                        { 42, new NestedClass() }
+                    }
+                }
+            };
+    }
+    
+    [GenerateJsonSerializer]
+    public partial class SubClass : ParentClass
     {
         public Dictionary<string, Dictionary<int, NestedClass>> MyDict { get; set; } =
             new Dictionary<string, Dictionary<int, NestedClass>>

@@ -72,11 +72,15 @@ namespace System.Text.Json.Generated.Generator
             var _ = new TemplateExecutor("serializer");
         }
 
-        public static string GetWellKnownTypeSerializerCode(IEnumerable<IWellKnownType> wellKnownTypes)
+        public static string GetWellKnownTypeSerializerCode(IReadOnlyCollection<IWellKnownType> wellKnownTypes)
         {
+            var additionalTypes = wellKnownTypes.OfType<SerializableValueType>()
+                .Select(type => new WellKnownList("global::System.Collections.Generic.IEnumerable", type));
+            
             var fullSet = wellKnownTypes
                 .SelectMany(self => new[] { self }.Concat(self.GetNestedTypes()))
                 .Where(type => type is not WellKnownValueType)
+                .Concat(additionalTypes)
                 .Distinct()
                 .ToList();
             
@@ -84,6 +88,7 @@ namespace System.Text.Json.Generated.Generator
             
             var builder = new StringBuilder(@"using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace System.Text.Json.Generated
 {

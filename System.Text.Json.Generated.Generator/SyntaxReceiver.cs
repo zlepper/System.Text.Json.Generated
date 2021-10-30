@@ -51,8 +51,10 @@ namespace System.Text.Json.Generated.Generator
 
                     var declarationType = GetTypeDeclarationType(context.Node);
 
+                    var hasParent = typeSymbol.BaseType != null && !IsObject(typeSymbol.BaseType);
                     Types.Add(new SerializationType(typeSymbol.Name, typeSymbol.ContainingNamespace.GetFullName(),
-                        declarationType, properties));
+                        declarationType, properties, hasParent));
+                    AddWellKnownSerializerType(typeSymbol, typeSymbol.Locations.FirstOrDefault());
 
                     return;
                 }
@@ -132,7 +134,9 @@ namespace System.Text.Json.Generated.Generator
             }
             else
             {
-                return new SerializableValueType(type.GetGlobalName());
+                var self = new SerializableValueType(type.GetGlobalName());
+                WellKnownTypesToSerialize.Add(self);
+                return self;
             }
         }
 
@@ -166,6 +170,22 @@ namespace System.Text.Json.Generated.Generator
         private static bool IsGenerateJsonSerializerAttribute(AttributeData attribute)
         {
             return attribute.AttributeClass?.Name is "GenerateJsonSerializerAttribute" or "GenerateJsonSerializer";
+        }
+
+        private static bool IsObject(ITypeSymbol type)
+        {
+            return type is
+            {
+                Name: "Object",
+                ContainingNamespace:
+                {
+                    Name: "System",
+                    ContainingNamespace:
+                    {
+                        IsGlobalNamespace: true
+                    }
+                }
+            };
         }
     }
 }

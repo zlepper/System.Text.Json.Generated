@@ -39,6 +39,7 @@ namespace System.Text.Json.Generated.Generator.Helpers
                 EnableRelaxedIndexerAccess = false,
                 EnableRelaxedTargetAccess = false,
                 EnableRelaxedMemberAccess = false,
+                EnableRelaxedFunctionAccess = false,
             };
         }
 

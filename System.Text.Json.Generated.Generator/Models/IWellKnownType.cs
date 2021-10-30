@@ -16,6 +16,7 @@ public record WellKnownDictionary(string KeyType, string ConcreteDictionaryType,
     public string CreateMethod()
     {
         return $@"
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SerializeToJson({GetTypeName()} dict, Utf8JsonWriter writer)
         {{
             writer.WriteStartObject();
@@ -90,6 +91,7 @@ public record WellKnownList(string ConcreteCollectionType, IWellKnownType ValueT
     public string CreateMethod()
     {
         return $@"
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SerializeToJson({GetTypeName()} enumerable, Utf8JsonWriter writer)
         {{
             writer.WriteStartArray();
@@ -203,6 +205,7 @@ public record SerializableValueType(string ConcreteTypeName) : IWellKnownType, I
     public string CreateMethod()
     {
         return $@"
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SerializeToJson({GetTypeName()} item, Utf8JsonWriter writer)
         {{
             item.SerializeToJson(writer);
