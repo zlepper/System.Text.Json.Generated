@@ -5,7 +5,8 @@
 
         <IsPackable>false</IsPackable>
         <LangVersion>Preview</LangVersion>
-        <TargetFrameworks>net472;net5.0;net6.0;netcoreapp3.1</TargetFrameworks>
+        <TargetFramework>net6.0</TargetFramework>
+        <EnablePreviewFeatures>true</EnablePreviewFeatures>
     </PropertyGroup>
 
     <ItemGroup>

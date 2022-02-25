@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace {{type.namespace}}
 {
-    public partial {{type.declaration_type | string.downcase}} {{type.name}} : IJsonSerializable
+    public partial {{type.declaration_type | string.downcase}} {{type.name}} : IJsonSerializable<{{type.name}}>
     {
         {{~if !type.has_parent~}}
         public void SerializeToJson(Utf8JsonWriter writer) 

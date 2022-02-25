@@ -7,7 +7,7 @@ namespace System.Text.Json.Generated.OutputTests
     {
         
         protected string SerializeUsingGenerated<T>(T serializable)
-            where T : IJsonSerializable
+            where T : IJsonSerializable<T>
         {
             using var ms = new MemoryStream(1 << 16);
             var writer = new Utf8JsonWriter(ms);
@@ -19,13 +19,13 @@ namespace System.Text.Json.Generated.OutputTests
         }
 
         protected string SerializeUsingStdLib<T>(T serializable)
-            where T : IJsonSerializable
+            where T : IJsonSerializable<T>
         {
             return JsonSerializer.Serialize(serializable, serializable.GetType());
         }
 
         protected void VerifyOutputMatchesStandard<T>(T serializable)
-        where T: IJsonSerializable
+        where T: IJsonSerializable<T>
         {
             var correct = SerializeUsingStdLib(serializable);
             var generated = SerializeUsingGenerated(serializable);

@@ -74,7 +74,7 @@ public class SubTypeSerializationPerformance
 [JsonConverter(typeof(AnimalSerializer))]
 public abstract partial class Animal
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 }
 
 [GenerateJsonSerializer]
